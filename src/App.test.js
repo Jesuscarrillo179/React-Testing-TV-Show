@@ -2,10 +2,13 @@ import React from 'react'
 import { render , waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from "./App"
-
 import { fetchShow as mockFetchShow } from './api/fetchShow'
 
+
+jest.mock("./api/fetchShow");
+
 const websiteData = {
+    data:{
     id: 2993,
     url: 'http://www.tvmaze.com/shows/2993/stranger-things',
     name: 'Stranger Things',
@@ -228,13 +231,15 @@ const websiteData = {
       ]
     }
   }
+}
 
-jest.mock("./api/fetchShow")
-
-test('gets and renders season 1 episodes', async () => {
+test("gets and renders season 1 episodes", async () => {
     mockFetchShow.mockResolvedValueOnce(websiteData);
-    const {getByText, getAllByTestId} = render (<App />)
-    // userEvent.click(getByText(/select a season/i))
-    // userEvent.click(getByText(/season 1/i))
-    // await waitFor(() => expect(getAllByTestId(/episode/i)).toHaveLength(8))
+    const {getByText, getAllByText} = render(<App />);
+    await waitFor(() => {
+        getByText(/select a season/i)
+    })
+    userEvent.click(getByText(/select a season/i))
+    await userEvent.click(getByText(/season 1/i))
+    await waitFor(() => expect(getAllByText(/episode/i)).toHaveLength(8))
 })
